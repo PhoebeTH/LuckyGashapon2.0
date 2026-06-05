@@ -13,12 +13,13 @@ RESET  = "\033[0m"
 
 
 # ── SOUND EFFECTS ─────────────────────────────────────────────────────────────
+
 import os as _os
 import threading as _threading
 
-_SFX_RARE     = "freesound_community-game-start-6104.wav"
-_SFX_CHIME    = "49447089-game-start-317318.wav"
-_SFX_GAMEOVER = "alphix-game-over-417465.wav"
+_SFX_RARE     = "sfx_rare.wav"
+_SFX_CHIME    = "sfx_chime.wav"
+_SFX_GAMEOVER = "sfx_gameover.wav"
 
 def _sfx_base() -> str:
     return _os.path.dirname(_os.path.abspath(__file__))
@@ -27,23 +28,13 @@ def _init_audio() -> bool:
     return True
 
 def _play(filename: str, wait: bool = False) -> None:
-
     try:
         import winsound
         path = _os.path.join(_sfx_base(), filename)
         if not _os.path.exists(path):
             return
-        flags = winsound.SND_FILENAME
-        if wait:
-            winsound.PlaySound(path, flags)
-        else:
-            # Fire in a daemon thread so the game loop never blocks
-            t = _threading.Thread(
-                target=winsound.PlaySound,
-                args=(path, flags),
-                daemon=True,
-            )
-            t.start()
+        flags = winsound.SND_FILENAME | winsound.SND_ASYNC if not wait else winsound.SND_FILENAME
+        winsound.PlaySound(path, flags)
     except Exception:
         pass  # never crash the game over audio
 
@@ -72,7 +63,6 @@ def sfx_gameover() -> None:
 # ── ITEM CLASSES ──────────────────────────────────────────────────────────────
 
 class Item:
-   
 
     def __init__(self, name: str, rarity: str, emoji: str, banner_tag: str = ""):
         self._name      = ""
@@ -81,7 +71,6 @@ class Item:
         self.banner_tag = banner_tag   # e.g. "(B1)" or "(B2)"
         self.name       = name         # uses setter
 
-   
     @property
     def name(self) -> str:
         return self._name
@@ -117,7 +106,7 @@ class Item:
 
 
 class CommonItem(Item):
-    
+
     def __init__(self, name: str, emoji: str, banner_tag: str = ""):
         super().__init__(name, "Common", emoji, banner_tag)
 
@@ -129,7 +118,6 @@ class CommonItem(Item):
 
 
 class RareItem(Item):
-   
 
     def __init__(self, name: str, emoji: str, banner_tag: str = ""):
         super().__init__(name, "Rare", emoji, banner_tag)
@@ -153,10 +141,9 @@ class UltraRareItem(Item):
         return YELLOW
 
 
-# ── Professor fix: validated price/value helper (standalone) ─────────────────
 
 def validate_price(value) -> float:
-    
+    """Return value as float after type and range checks."""
     if not isinstance(value, (int, float)):
         raise TypeError(f"Price must be int or float, got {type(value).__name__}")
     if value < 0:
@@ -165,7 +152,7 @@ def validate_price(value) -> float:
 
 
 def item_from_dict(d: dict) -> "Item":
-   
+    """Reconstruct an Item subclass from a saved dictionary."""
     name       = d["name"]
     rarity     = d["rarity"]
     emoji      = d["emoji"]
@@ -179,7 +166,7 @@ def item_from_dict(d: dict) -> "Item":
 
 
 # ── ITEM POOLS ────────────────────────────────────────────────────────────────
-# Banner tag key:  (B1) 
+# Banner tag key:  (B1) = Standard Banner   (B2) = Bonus Banner (free rolls)
 
 COMMON_POOL: list[Item] = [
     # Consumables
@@ -302,7 +289,6 @@ TOTAL_UNIQUE_ITEMS = len(ALL_ITEMS)
 
 
 def get_random_item(rarity: str, bonus: bool = False) -> "Item":
-    
     if bonus:
         pool_map = {
             "Common":     BONUS_COMMON_POOL,
@@ -321,7 +307,6 @@ def get_random_item(rarity: str, bonus: bool = False) -> "Item":
 # ── PLAYER CLASS ──────────────────────────────────────────────────────────────
 
 class Player:
-    
 
     def __init__(self, points: int = 150):   # buffed starting points
         self.points:         int        = points
@@ -387,7 +372,6 @@ class Player:
     # ── NG+ helpers ────────────────────────────
 
     def collection_complete(self) -> bool:
-       
         return self.unique_items_ever_pulled() >= ALL_ITEMS
 
     def ng_plus_spins_used(self) -> int:
@@ -423,7 +407,7 @@ class Player:
 # ── BANNER CLASSES ────────────────────────────────────────────────────────────
 
 class Banner(abc.ABC):
- 
+
 
     def __init__(self, name: str, description: str):
         self.name        = name
@@ -431,14 +415,15 @@ class Banner(abc.ABC):
 
     @abc.abstractmethod
     def spin(self, pity_counter: int) -> tuple[str, bool]:
-        
+        """Return"""
 
     def __str__(self) -> str:
         return f"{CYAN}{self.name}{RESET} — {self.description}"
 
 
 class StandardBanner(Banner):
-   
+
+
     def __init__(self):
         super().__init__(
             "Standard Banner",
@@ -462,7 +447,8 @@ class StandardBanner(Banner):
 
 
 class BonusBanner(Banner):
-   
+
+
     def __init__(self):
         super().__init__(
             "Bonus Banner  (FREE ROLLS)",
