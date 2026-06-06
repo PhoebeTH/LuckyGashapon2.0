@@ -7,7 +7,7 @@ Manage your economy by selling items back to the store, chase Ultra Rares, and t
 ---
 
 ## Videos
-- [Code Demo]
+- [Code Demo](https://youtu.be/yO2DB5pTkdQ)
 - [Code Walkthrough]
 
 ## How to Run
