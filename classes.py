@@ -17,9 +17,9 @@ RESET  = "\033[0m"
 import os as _os
 import threading as _threading
 
-_SFX_RARE     = "sfx_rare.wav"
-_SFX_CHIME    = "sfx_chime.wav"
-_SFX_GAMEOVER = "sfx_gameover.wav"
+_SFX_RARE     = "freesound_community-game-start-6104"
+_SFX_CHIME    = "49447089-game-start-317318"
+_SFX_GAMEOVER = "alphix-game-over-417465.wav"
 
 def _sfx_base() -> str:
     return _os.path.dirname(_os.path.abspath(__file__))
