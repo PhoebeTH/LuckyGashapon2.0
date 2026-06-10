@@ -1,3 +1,14 @@
+"""
+Lucky Gashapon 2.0
+Lucky Gachapon is a spin-based item collecting game. 
+The player starts with 150 points and spends 10 per spin to earn Common, Rare, or Ultra Rare items. 
+Items can be sold to keep spinning. Choose between the Standard Banner (with a 75-spin pity guarantee) or the Bonus Banner (free rolls, lower sell value). Manage your economy by selling items back to the store, chase Ultra Rares, and track your full collection progress. 
+**New Game+ mode that challenges you to collect every item in the game as fast as possible
+
+Thunyapron Thianpramook (Phoebe)
+June 09, 2026
+"""
+
 import random
 import time
 import os
